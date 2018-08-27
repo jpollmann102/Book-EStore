@@ -53,7 +53,12 @@ public class BookEStore extends JFrame implements ActionListener
 	private int itemQuant;
 	private int currentBookID;
 	private int discount;
+	private double curItemPrice;
+	private double tempSubtotal = 0.0;
 	private double subtotal = 0.0;
+	
+	private String[] order;
+	private int orderIdx = 0;
 	
 	public BookEStore()
 	{
@@ -137,7 +142,9 @@ public class BookEStore extends JFrame implements ActionListener
 					nbrItemsField.setEditable(false);
 				}
 				
-				String bookID = bookIDLabel.getText();
+				if(order == null) order = new String[itemsInOrder];
+				
+				String bookID = bookIDField.getText();
 				String[] q = query(bookID);
 				
 				if(!q[0].equals(""))
@@ -147,9 +154,13 @@ public class BookEStore extends JFrame implements ActionListener
 					else if(itemCount < 15) discount = 15;
 					else discount = 20;
 					
+					curItemPrice = Double.parseDouble(q[1]);
+					
+					tempSubtotal += curItemPrice - (curItemPrice * ((double) discount / 10.0));
+					
 					itemQuant = Integer.parseInt(quantityField.getText());
 					
-					itemInfoField.setText(bookID + " " + q[0] + " " + q[1] + " " + itemCount + " " + discount + "% " + "$" + subtotal);
+					itemInfoField.setText(bookID + " " + q[0] + " $" + q[1] + " " + itemCount + " " + discount + "% " + "$" + tempSubtotal);
 					processItemBtn.setEnabled(false);
 					confirmItemBtn.setEnabled(true);
 				}
@@ -160,28 +171,69 @@ public class BookEStore extends JFrame implements ActionListener
 					
 			public void actionPerformed(ActionEvent e)
 			{
+				JOptionPane.showMessageDialog(null, "Item #" + itemCount + " accepted");
 				itemCount += itemQuant;
+				
+				int i = 0;
+				while(i < itemQuant)
+				{
+					order[orderIdx] = orderIdx++ + "." + itemInfoField.getText();
+					i++;
+				}
+				
+				itemQuant = 0;
+				
+				subtotal += tempSubtotal;
 				
 				bookIDField.setText("");
 				quantityField.setText("");
 				
 				if(itemCount > 2) itemInfoLabel = new JLabel("Item #" + itemCount + " info:");
 				
-				bookIDLabel = new JLabel("Enter Book ID for item #" + itemCount + ":");
-				quantityLabel = new JLabel("Enter quantity for item #" + itemCount + ":");
-				subtotalLabel = new JLabel("Order subtotal for " + (itemCount - 1) + " item(s):");
+				bookIDLabel.setText("Enter Book ID for item #" + itemCount + ":");
+				quantityLabel.setText("Enter quantity for item #" + itemCount + ":");
+				subtotalLabel.setText("Order subtotal for " + (itemCount - 1) + " item(s):");
 				
-				processItemBtn.setEnabled(true);
-				confirmItemBtn.setEnabled(false);
+				subtotalField.setText("$" + subtotal);
 				
-				processItemBtn = new JButton("Process Item #" + itemCount);
-				confirmItemBtn = new JButton("Confirm Item #" + itemCount);
+				viewOrderBtn.setEnabled(true);
+				finishOrderBtn.setEnabled(true);
 				
-				
+				if(itemCount >= itemsInOrder)
+				{
+					// done with order
+					processItemBtn.setEnabled(false);
+					confirmItemBtn.setEnabled(false);
+				}else
+				{
+					processItemBtn.setEnabled(true);
+					confirmItemBtn.setEnabled(false);
+					
+					processItemBtn.setText("Process Item #" + itemCount);
+					confirmItemBtn.setText("Confirm Item #" + itemCount);
+				}
 			}
 		});
 		
-		viewOrderBtn.addActionListener(new ActionListener() {
+		viewOrderBtn.addActionListener(new ActionListener() 
+		{
+			
+			public void actionPerformed(ActionEvent e)
+			{
+				String viewOrder = "";
+				int i = 0;
+				while(i < order.length)
+				{
+					viewOrder.concat(order[i] + "\n");
+					i++;
+				}
+				
+				JOptionPane.showMessageDialog(null, viewOrder);
+			}
+		});
+		
+		finishOrderBtn.addActionListener(new ActionListener() 
+		{
 			
 			public void actionPerformed(ActionEvent e)
 			{
@@ -189,7 +241,8 @@ public class BookEStore extends JFrame implements ActionListener
 			}
 		});
 		
-		finishOrderBtn.addActionListener(new ActionListener() {
+		newOrderBtn.addActionListener(new ActionListener() 
+		{
 			
 			public void actionPerformed(ActionEvent e)
 			{
@@ -197,15 +250,8 @@ public class BookEStore extends JFrame implements ActionListener
 			}
 		});
 		
-		newOrderBtn.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e)
-			{
-				
-			}
-		});
-		
-		exitBtn.addActionListener(new ActionListener() {
+		exitBtn.addActionListener(new ActionListener()
+		{
 			
 			public void actionPerformed(ActionEvent e)
 			{
@@ -237,14 +283,17 @@ public class BookEStore extends JFrame implements ActionListener
 		
 		while(sc.hasNext())
 		{
-			String thisID = sc.next();
-			if(thisID.equals(id))
+			String curID = sc.next();
+
+			if(curID.equals(id))
 			{
-				// success, found in inventory
+				// found it
 				ret[0] = sc.next();
 				ret[1] = sc.next();
 				return ret;
 			}
+			
+			sc.nextLine();
 		}
 		
 		// could not find in inventory
