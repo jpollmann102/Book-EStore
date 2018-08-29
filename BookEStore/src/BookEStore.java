@@ -57,13 +57,14 @@ public class BookEStore extends JFrame implements ActionListener
 	private int itemCount = 1;
 	private int itemsInOrder;
 	private int itemQuant;
-	private int currentBookID;
 	private int discount;
 	private double curItemPrice;
 	private double tempSubtotal = 0.0;
 	private double subtotal = 0.0;
+	private String addToTransaction;
 	
 	private String[] order;
+	private String[][] transaction;
 	private int orderIdx = 0;
 	
 	public BookEStore()
@@ -149,25 +150,28 @@ public class BookEStore extends JFrame implements ActionListener
 				}
 				
 				if(order == null) order = new String[itemsInOrder];
+				if(transaction == null) transaction = new String[itemsInOrder][3];
 				
 				String bookID = bookIDField.getText();
 				String[] q = query(bookID);
 				
 				if(!q[0].equals(""))
 				{
-					if(itemCount < 5) discount = 0;
-					else if(itemCount < 10) discount = 10;
-					else if(itemCount < 15) discount = 15;
+					itemQuant = Integer.parseInt(quantityField.getText());
+					
+					if(itemQuant < 5) discount = 0;
+					else if(itemQuant < 10) discount = 10;
+					else if(itemQuant < 15) discount = 15;
 					else discount = 20;
 					
 					curItemPrice = Double.parseDouble(q[1]);
-					
-					itemQuant = Integer.parseInt(quantityField.getText());
 					
 					tempSubtotal += curItemPrice - (curItemPrice * ((double) discount / 10.0));
 					tempSubtotal *= (double) itemQuant;
 					
 					String tempSubtotalString = String.format("%.2f", tempSubtotal);
+					
+					addToTransaction = String.format("%s, %s, %s, %d, %d, %s", bookID, q[0], q[1], itemQuant, discount, tempSubtotalString);
 					
 					itemInfoField.setText(bookID + " " + q[0] + " $" + q[1] + " " + itemQuant + " " + discount + "% " + "$" + tempSubtotalString);
 					processItemBtn.setEnabled(false);
@@ -184,6 +188,7 @@ public class BookEStore extends JFrame implements ActionListener
 				itemCount++;
 				
 				order[orderIdx] = (orderIdx + 1) + ". " + itemInfoField.getText();
+				transaction[orderIdx][1] = addToTransaction;
 				orderIdx++;
 				
 				itemQuant = 0;
@@ -254,7 +259,7 @@ public class BookEStore extends JFrame implements ActionListener
 				Date date = new Date();
 				invoice = invoice.concat("Date: " + dateFormat.format(date) + " EDT\n\n");
 				invoice = invoice.concat("Number of line items: " + itemsInOrder + "\n\n");
-				invoice = invoice.concat("Item# / ID / Title/ Price / Qty / Disc % / Subtotal:\n\n");
+				invoice = invoice.concat("Item# / ID / Title / Price / Qty / Disc % / Subtotal:\n\n");
 				
 				int i = 0;
 				while(i < orderIdx)
@@ -286,6 +291,15 @@ public class BookEStore extends JFrame implements ActionListener
 				
 				dateFormat = new SimpleDateFormat("h:mm:ss a");
 				String transactionDate = dateFormat.format(date) + " EDT";
+				
+				i = 0;
+				while(i < orderIdx)
+				{
+					transaction[orderIdx][0] = String.format("%f", transactionID);
+					transaction[orderIdx][2] = transactionDate;
+					i++;
+				}
+				
 				try {
 					PrintStream out = new PrintStream(new FileOutputStream("transactions.txt", true));
 					System.setOut(out);
@@ -293,11 +307,7 @@ public class BookEStore extends JFrame implements ActionListener
 					i = 0;
 					while(i < orderIdx)
 					{
-						String tempOrder = order[i];
-						String[] split = tempOrder.split("\\s+");
-						String output = String.format("%d, %s, %s, %s, %s, %s, %s, %s, %s\n",
-													transactionID, split[0], split[1], split[2], split[3], split[4], split[5], split[6],
-													transactionDate);
+						String output = String.format("%s, %s %s\n", transaction[orderIdx][0], transaction[orderIdx][1], transaction[orderIdx][2]);
 						out.println(output);
 						i++;
 					}
@@ -306,6 +316,8 @@ public class BookEStore extends JFrame implements ActionListener
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				
+				newTransaction();
 			}
 		});
 		
@@ -314,32 +326,7 @@ public class BookEStore extends JFrame implements ActionListener
 			
 			public void actionPerformed(ActionEvent e)
 			{
-				order = null;
-				itemCount = 1;
-				itemQuant = 0;
-				orderIdx = 0;
-				subtotal = 0;
-				tempSubtotal = 0;
-				
-				processItemBtn.setText("Process Item #" + itemCount);
-				confirmItemBtn.setText("Confirm Item #" + itemCount);
-				
-				bookIDLabel.setText("Enter Book ID for item #" + itemCount + ":");
-				quantityLabel.setText("Enter quantity for item #" + itemCount + ":");
-				itemInfoLabel.setText("Item #" + itemCount + " info:");
-				subtotalLabel.setText("Order subtotal for " + (itemCount - 1) + " item(s):");
-				
-				nbrItemsField.setText("");
-				itemInfoField.setText("");
-				subtotalField.setText("");
-				
-				confirmItemBtn.setEnabled(false);
-				viewOrderBtn.setEnabled(false);
-				finishOrderBtn.setEnabled(false);
-				
-				nbrItemsField.setEditable(true);
-				bookIDField.setEnabled(true);
-				quantityField.setEnabled(true);
+				newTransaction();
 			}
 		});
 		
@@ -357,6 +344,37 @@ public class BookEStore extends JFrame implements ActionListener
 		setResizable(false);
 		pack();
 		setVisible(true);
+	}
+	
+	public void newTransaction()
+	{
+		order = null;
+		transaction = null;
+		itemCount = 1;
+		itemQuant = 0;
+		orderIdx = 0;
+		subtotal = 0;
+		tempSubtotal = 0;
+		
+		processItemBtn.setText("Process Item #" + itemCount);
+		confirmItemBtn.setText("Confirm Item #" + itemCount);
+		
+		bookIDLabel.setText("Enter Book ID for item #" + itemCount + ":");
+		quantityLabel.setText("Enter quantity for item #" + itemCount + ":");
+		itemInfoLabel.setText("Item #" + itemCount + " info:");
+		subtotalLabel.setText("Order subtotal for " + (itemCount - 1) + " item(s):");
+		
+		nbrItemsField.setText("");
+		itemInfoField.setText("");
+		subtotalField.setText("");
+		
+		confirmItemBtn.setEnabled(false);
+		viewOrderBtn.setEnabled(false);
+		finishOrderBtn.setEnabled(false);
+		
+		nbrItemsField.setEditable(true);
+		bookIDField.setEnabled(true);
+		quantityField.setEnabled(true);
 	}
 	
 	public String[] query(String id)
