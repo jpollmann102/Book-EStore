@@ -159,19 +159,19 @@ public class BookEStore extends JFrame implements ActionListener
 				{
 					itemQuant = Integer.parseInt(quantityField.getText());
 					
-					if(itemQuant < 5) discount = 0;
+					if(itemQuant <= 5) discount = 0;
 					else if(itemQuant < 10) discount = 10;
 					else if(itemQuant < 15) discount = 15;
 					else discount = 20;
 					
 					curItemPrice = Double.parseDouble(q[1]);
 					
-					tempSubtotal += curItemPrice - (curItemPrice * ((double) discount / 10.0));
-					tempSubtotal *= (double) itemQuant;
+					tempSubtotal += curItemPrice * itemQuant;
+					tempSubtotal -= tempSubtotal * ((double) discount / 100.0);
 					
 					String tempSubtotalString = String.format("%.2f", tempSubtotal);
 					
-					addToTransaction = String.format("%s, %s, %s, %d, %d, %s", bookID, q[0], q[1], itemQuant, discount, tempSubtotalString);
+					addToTransaction = String.format("%s,%s, %s, %d, %.2f, %s", bookID, q[0], q[1], itemQuant, (discount / 100.0), tempSubtotalString);
 					
 					itemInfoField.setText(bookID + " " + q[0] + " $" + q[1] + " " + itemQuant + " " + discount + "% " + "$" + tempSubtotalString);
 					processItemBtn.setEnabled(false);
@@ -220,6 +220,7 @@ public class BookEStore extends JFrame implements ActionListener
 					bookIDField.setEnabled(false);
 					quantityLabel.setText("");
 					quantityField.setEnabled(false);
+					
 				}else
 				{
 					processItemBtn.setEnabled(true);
@@ -287,16 +288,15 @@ public class BookEStore extends JFrame implements ActionListener
 				// generate transaction id
 				dateFormat = new SimpleDateFormat("DDMMYYYYHHMM");
 				long transactionID = Long.parseLong(dateFormat.format(date));
-				System.out.println(transactionID);
 				
-				dateFormat = new SimpleDateFormat("h:mm:ss a");
+				dateFormat = new SimpleDateFormat("M/dd/yy h:mm:ss a");
 				String transactionDate = dateFormat.format(date) + " EDT";
 				
 				i = 0;
 				while(i < orderIdx)
 				{
-					transaction[orderIdx][0] = String.format("%f", transactionID);
-					transaction[orderIdx][2] = transactionDate;
+					transaction[i][0] = String.format("%d", transactionID);
+					transaction[i][2] = transactionDate;
 					i++;
 				}
 				
@@ -307,7 +307,7 @@ public class BookEStore extends JFrame implements ActionListener
 					i = 0;
 					while(i < orderIdx)
 					{
-						String output = String.format("%s, %s %s\n", transaction[orderIdx][0], transaction[orderIdx][1], transaction[orderIdx][2]);
+						String output = String.format("%s, %s, %s", transaction[i][0], transaction[i][1], transaction[i][2]);
 						out.println(output);
 						i++;
 					}
@@ -371,6 +371,8 @@ public class BookEStore extends JFrame implements ActionListener
 		confirmItemBtn.setEnabled(false);
 		viewOrderBtn.setEnabled(false);
 		finishOrderBtn.setEnabled(false);
+		
+		processItemBtn.setEnabled(true);
 		
 		nbrItemsField.setEditable(true);
 		bookIDField.setEnabled(true);

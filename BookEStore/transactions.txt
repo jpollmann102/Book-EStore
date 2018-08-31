@@ -1,0 +1,13 @@
+2430820181208, 22222, "W Is For Wasted - Sue Grafton",  9.95, 1, 0.00, 9.95, 8/31/18 12:01:21 PM EDT
+2430820181208, 99999, "Rogue Lawyer - John Grisham",  15.95, 2, 0.00, 31.90, 8/31/18 12:01:21 PM EDT
+2430820181208, 11234, "Tricky Twenty-Two - Janet Evanovich",  12.95, 1, 0.00, 12.95, 8/31/18 12:01:21 PM EDT
+2430820181208, 55555, "Everyday Italian - Giada de Laurentiis",  18.99, 10, 0.15, 161.42, 8/31/18 12:01:41 PM EDT
+2430820181208, 12277, "Y Is For Yesterday - Sue Grafton",  10.99, 4, 0.00, 43.96, 8/31/18 12:02:21 PM EDT
+2430820181208, 23411, "Chaos - Patricia Cornwell",  10.75, 1, 0.00, 10.75, 8/31/18 12:02:21 PM EDT
+2430820181208, 89891, "Turbo Twenty-three - Janet Evanovich",  8.99, 1, 0.00, 8.99, 8/31/18 12:03:03 PM EDT
+2430820181208, 22222, "W Is For Wasted - Sue Grafton",  9.95, 20, 0.20, 159.20, 8/31/18 12:03:03 PM EDT
+2430820181208, 12123, "X - Sue Grafton",  9.99, 8, 0.10, 71.93, 8/31/18 12:03:03 PM EDT
+2430820181208, 66666, "Refusal - Felix Francis",  7.99, 1, 0.00, 7.99, 8/31/18 12:03:24 PM EDT
+2430820181208, 88888, "Terminal City - Linda Fairstein",  10.95, 3, 0.00, 32.85, 8/31/18 12:03:24 PM EDT
+2430820181208, 22222, "W Is For Wasted - Sue Grafton",  9.95, 2, 0.00, 19.90, 8/31/18 12:19:02 PM EDT
+2430820181208, 11234, "Tricky Twenty-Two - Janet Evanovich",  12.95, 10, 0.15, 110.08, 8/31/18 12:19:02 PM EDT
